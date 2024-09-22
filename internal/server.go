@@ -31,6 +31,8 @@ func (s *server) Run() {
 			s.listRooms(cmd.client)
 		case CMD_MSG:
 			s.msg(cmd.client, cmd.args)
+		case CMD_LEAVE:
+			s.leave(cmd.client)
 		case CMD_QUIT:
 			s.quit(cmd.client)
 		}
@@ -67,7 +69,7 @@ func (s *server) join(c *client, args []string) {
 
 	r.members[c.conn.RemoteAddr()] = c
 
-	s.quitCurrentRoom(c)
+	s.quitProgram(c)
 
 	c.room = r
 
@@ -93,18 +95,27 @@ func (s *server) msg(c *client, args []string) {
 	c.room.boradcast(c, c.nick+": "+strings.Join(args[1:], " "))
 }
 
-func (s *server) quit(c *client) {
-	log.Printf("client %s has left the room", c.conn.RemoteAddr().String())
+func (s *server) leave(c *client) {
+	if c.room != nil {
+		c.room.boradcast(c, fmt.Sprintf(("%s has left the room"), c.nick))
+	}
 
-	s.quitCurrentRoom(c)
+	c.msg(fmt.Sprintf("You have left the room %s", c.room.name))
+	c.room = nil
+}
+
+func (s *server) quit(c *client) {
+	log.Printf("client %s is offline", c.conn.RemoteAddr().String())
+
+	s.quitProgram(c)
 
 	c.msg("good bye!")
 	c.conn.Close()
 }
 
-func (s *server) quitCurrentRoom(c *client) {
+func (s *server) quitProgram(c *client) {
 	if c.room != nil {
 		delete(c.room.members, c.conn.RemoteAddr())
-		c.room.boradcast(c, fmt.Sprintf(("%s has left the room"), c.nick))
+		c.room.boradcast(c, fmt.Sprintf(("%s is offline."), c.nick))
 	}
 }

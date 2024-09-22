@@ -1,0 +1,7 @@
+version: '3'
+services:
+  chat:
+    image: sophiehsu/chat:latest
+    restart: always
+    ports: 
+      - 8000:8000
