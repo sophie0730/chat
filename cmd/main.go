@@ -11,13 +11,13 @@ func main() {
 	s := internal.NewServer()
 	go s.Run()
 
-	listener, err := net.Listen("tcp", ":8888")
+	listener, err := net.Listen("tcp", ":8000")
 	if err != nil {
 		log.Fatalf("unable to start server: %s", err.Error())
 	}
 
 	defer listener.Close()
-	log.Printf("start server on: 8888")
+	log.Printf("start server on: 8000")
 
 	//endless loop for accepting connection
 	for {
